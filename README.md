@@ -1,17 +1,17 @@
-# Assignment 4: Global Illumination
+# Assignment 3: Basic Ray Tracing
 
-Name:  
-Student ID:  
+Name: 陈俊霖
+Student ID: 2022533009
 
 **Please write your Chinese name and your student ID in this README.**
 
 ## Deadline
 
-**November 30, 2022, 22:00 UTC+8**
+**November 21, 2025, 22:00 UTC+8**
 
 ## Statement
 
-Refer to [course page](https://faculty.sist.shanghaitech.edu.cn/faculty/liuxp/course/cs171.01/).
+Refer to [course page](https://faculty.sist.shanghaitech.edu.cn/faculty/liuxp/course/cs171/).
 
 ## Skeleton Project/ Report Template
 
