@@ -3,6 +3,7 @@
 #include "rdr/fresnel.h"
 #include "rdr/interaction.h"
 #include "rdr/math_aliases.h"
+#include "rdr/math_utils.h"
 #include "rdr/platform.h"
 
 RDR_NAMESPACE_BEGIN
@@ -43,13 +44,13 @@ Vec3f IdealDiffusion::evaluate(SurfaceInteraction &interaction) const {
 
 Float IdealDiffusion::pdf(SurfaceInteraction &interaction) const {
   // This is left as the next assignment
-  UNIMPLEMENTED;
+  return 0.0f;
 }
 
 Vec3f IdealDiffusion::sample(
     SurfaceInteraction &interaction, Sampler &sampler, Float *out_pdf) const {
   // This is left as the next assignment
-  UNIMPLEMENTED;
+  return Vec3f(0.0f);
 }
 
 /// return whether the bsdf is perfect transparent or perfect reflection
@@ -104,7 +105,16 @@ Vec3f PerfectRefraction::sample(
   // @see Refract for refraction calculation.
   // @see Reflect for reflection calculation.
 
-  UNIMPLEMENTED;
+  // Use the incident direction as -wo for refraction test
+  Vec3f wt       = Vec3f(0.0f);
+  bool refracted = Refract(-interaction.wo, normal, eta_corrected, wt);
+  if (refracted) {
+    // wt is the transmitted direction pointing away from the surface
+    interaction.wi = wt;
+  } else {
+    // Total internal reflection: reflect the outgoing direction
+    interaction.wi = Reflect(interaction.wo, normal);
+  }
 
   // Set the pdf and return value, we dont need to understand the value now
   if (pdf != nullptr) *pdf = 1.0F;
@@ -140,7 +150,7 @@ Float Glass::pdf(SurfaceInteraction &) const {
 Vec3f Glass::sample(
     SurfaceInteraction &interaction, Sampler &sampler, Float *pdf) const {
   // This is left as the next assignment
-  UNIMPLEMENTED;
+  return Vec3f(0.0f);
 }
 
 bool Glass::isDelta() const {
@@ -176,18 +186,18 @@ MicrofacetReflection::MicrofacetReflection(const Properties &props)
 
 Vec3f MicrofacetReflection::evaluate(SurfaceInteraction &interaction) const {
   // This is left as the next assignment
-  UNIMPLEMENTED;
+  return Vec3f(0.0f);
 }
 
 Float MicrofacetReflection::pdf(SurfaceInteraction &interaction) const {
   // This is left as the next assignment
-  UNIMPLEMENTED;
+  return 0.0f;
 }
 
 Vec3f MicrofacetReflection::sample(
     SurfaceInteraction &interaction, Sampler &sampler, Float *pdf_in) const {
   // This is left as the next assignment
-  UNIMPLEMENTED;
+  return Vec3f(0.0f);
 }
 
 /// return whether the bsdf is perfect transparent or perfect reflection

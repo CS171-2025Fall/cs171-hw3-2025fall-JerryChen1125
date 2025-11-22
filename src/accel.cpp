@@ -43,7 +43,29 @@ bool AABB::intersect(const Ray &ray, Float *t_in, Float *t_out) const {
   //    for getting the inverse direction of the ray.
   // @see Min/Max/ReduceMin/ReduceMax
   //    for vector min/max operations.
-  UNIMPLEMENTED;
+  //
+  // Use the slab method. Compute intersection intervals on each axis and
+  // take the intersection of the three intervals.
+  const Vec3f inv_dir = ray.safe_inverse_direction;
+  const Vec3f orig    = ray.origin;
+
+  const Vec3f t0 = (low_bnd - orig) * inv_dir;
+  const Vec3f t1 = (upper_bnd - orig) * inv_dir;
+
+  const Vec3f t_min_vec = Min(t0, t1);
+  const Vec3f t_max_vec = Max(t0, t1);
+
+  const Float t_enter = static_cast<Float>(ReduceMax(t_min_vec));
+  const Float t_exit  = static_cast<Float>(ReduceMin(t_max_vec));
+
+  if (t_enter > t_exit) return false;
+
+  // Check overlap with ray time range
+  if (t_exit < ray.t_min || t_enter > ray.t_max) return false;
+
+  if (t_in) *t_in = t_enter;
+  if (t_out) *t_out = t_exit;
+  return true;
 }
 
 /* ===================================================================== *
@@ -91,11 +113,33 @@ bool TriangleIntersect(Ray &ray, const uint32_t &triangle_index,
   // Useful Functions:
   // You can use @see Cross and @see Dot for determinant calculations.
 
-  // Delete the following lines after you implement the function
-  InternalScalarType u = InternalScalarType(0);
-  InternalScalarType v = InternalScalarType(0);
-  InternalScalarType t = InternalScalarType(0);
-  UNIMPLEMENTED;
+  // Möller–Trumbore algorithm (no back-face culling)
+  const InternalVecType orig  = Cast<InternalScalarType>(ray.origin);
+  const InternalVecType edge1 = v1 - v0;
+  const InternalVecType edge2 = v2 - v0;
+
+  const InternalVecType pvec   = Cross(dir, edge2);
+  const InternalScalarType det = Dot(edge1, pvec);
+
+  // If determinant is near zero, ray is parallel to triangle
+  const InternalScalarType eps = InternalScalarType(1e-12);
+  if (std::abs(det) < eps) return false;
+
+  const InternalScalarType invDet = InternalScalarType(1) / det;
+
+  const InternalVecType tvec = orig - v0;
+  InternalScalarType u       = invDet * Dot(tvec, pvec);
+  if (u < InternalScalarType(0) || u > InternalScalarType(1)) return false;
+
+  const InternalVecType qvec = Cross(tvec, edge1);
+  InternalScalarType v       = invDet * Dot(dir, qvec);
+  if (v < InternalScalarType(0) || (u + v) > InternalScalarType(1))
+    return false;
+
+  InternalScalarType t = invDet * Dot(edge2, qvec);
+
+  // Ensure t is within the ray's time range
+  if (!ray.withinTimeRange(static_cast<Float>(t))) return false;
 
   // We will reach here if there is an intersection
 
