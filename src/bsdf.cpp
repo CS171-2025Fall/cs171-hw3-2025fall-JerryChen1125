@@ -107,7 +107,7 @@ Vec3f PerfectRefraction::sample(
 
   // Use the incident direction as -wo for refraction test
   Vec3f wt       = Vec3f(0.0f);
-  bool refracted = Refract(-interaction.wo, normal, eta_corrected, wt);
+  bool refracted = Refract(interaction.wo, normal, eta_corrected, wt);
   if (refracted) {
     // wt is the transmitted direction pointing away from the surface
     interaction.wi = wt;
